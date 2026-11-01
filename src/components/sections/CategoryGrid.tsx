@@ -84,7 +84,7 @@ export default function CategoryGrid({ limit = 4 }: CategoryGridProps) {
           Shop by Category
         </h2>
         <Link
-          className="font-label-bold text-label-bold text-secondary hover:text-primary transition-all hover:line-through tracking-widest"
+          className="font-label-bold text-label-bold text-secondary hover:text-primary transition-all hover:line-through text-[15px] tracking-widest"
           href="/items"
         >
           VIEW ALL

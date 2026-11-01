@@ -11,6 +11,7 @@ import ProductInfo from "./ProductInfo";
 import ExpressCheckoutModal from "./ExpressCheckoutModal";
 import ProductReviewList from "./ProductReviewList";
 import ProductReviewForm from "./ProductReviewForm";
+import { computeSalePriceValue, formatRs, isDiscountActive } from "@/lib/pricing";
 
 interface ProductDetailContentProps {
   productId: string;
@@ -127,6 +128,10 @@ export default function ProductDetailContent({ productId }: ProductDetailContent
 
   const isSoldOut = product.status === "soldout" || product.stock <= 0;
 
+  const effectivePrice = isDiscountActive(product.discountPercent)
+    ? formatRs(computeSalePriceValue(product.priceValue, product.discountPercent))
+    : product.price;
+
   const displayMainUrl = variantDisplay.main ?? mainImageUrl ?? undefined;
   const displaySecondaryUrl = variantDisplay.secondary ?? secondaryImageUrl ?? undefined;
 
@@ -156,6 +161,8 @@ export default function ProductDetailContent({ productId }: ProductDetailContent
         <ProductInfo
           name={product.name}
           price={product.price}
+          priceValue={product.priceValue}
+          discountPercent={product.discountPercent}
           description={product.description}
           sizes={product.sizes}
           stock={product.stock}
@@ -191,7 +198,7 @@ export default function ProductDetailContent({ productId }: ProductDetailContent
           <ExpressCheckoutModal
             productId={product._id}
             name={product.name}
-            price={product.price}
+            price={effectivePrice}
             size={expressSize}
             onClose={() => setExpressSize(null)}
           />

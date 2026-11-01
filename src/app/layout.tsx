@@ -4,6 +4,7 @@ import Providers from "@/components/Providers";
 import PageLoader from "@/components/ui/PageLoader";
 import RouteLoader from "@/components/ui/RouteLoader";
 import JsonLdScript from "@/components/seo/JsonLdScript";
+import { Cabin } from "next/font/google";
 import {
   SITE_NAME,
   SITE_URL,
@@ -39,6 +40,13 @@ const syncopate = Syncopate({
   weight: ["700"],
 });
 
+
+const cabin = Cabin({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-cabin",
+});
+
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
@@ -67,7 +75,7 @@ export const metadata: Metadata = {
     description:
       "Buy shirts online in Pakistan. Premium men's shirts, streetwear apparel and limited drops with nationwide delivery.",
   },
-  icons: { shortcut: '/icon.svg' },
+  icons: { shortcut: '/icon.svg' },       
 };
 
 export const viewport = {
@@ -94,7 +102,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={cn("antialiased", funnelDisplay.variable, syne.variable, plusJakartaSans.variable, syncopate.variable)}
+      className={cn("antialiased", funnelDisplay.variable, syne.variable, plusJakartaSans.variable, syncopate.variable,`${cabin.variable} antialiased`)}
     >
       <body className={cn("bg-background text-on-background font-body-md min-h-screen", funnelDisplay.className)}>
         <PageLoader />

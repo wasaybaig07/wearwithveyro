@@ -3,7 +3,6 @@ import { Suspense } from "react";
 
 import Navbar from "@/components/layout/Navbar";
 import ItemsHeader from "@/components/items/ItemsHeader";
-import ItemsMarquee from "@/components/items/ItemsMarquee";
 import ItemsPageContent from "@/components/items/ItemsPageContent";
 import Footer from "@/components/layout/Footer";
 
@@ -37,7 +36,6 @@ export default function ShopPage() {
         <Suspense fallback={null}>
           <ItemsPageContent />
         </Suspense>
-        <ItemsMarquee />
       </main>
       <Footer />
     </>

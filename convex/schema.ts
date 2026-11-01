@@ -18,6 +18,7 @@ export default defineSchema({
     name: v.string(),
     price: v.string(),
     priceValue: v.number(),
+    discountPercent: v.optional(v.number()),//here
     description: v.string(),
     category: v.string(),
     badge: v.optional(v.union(v.literal("new"), v.literal("hot"))),

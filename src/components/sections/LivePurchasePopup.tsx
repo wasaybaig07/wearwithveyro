@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import Image from "next/image";
+import Link from "next/link";
 
 const BUYER_NAMES = [
   "Nihal",
@@ -79,9 +80,10 @@ export default function LivePurchasePopup() {
   const timeAgo = TIME_AGO[current % TIME_AGO.length];
 
   return (
-    <div
+    <Link
+      href={`/product/${product.slug}`}
       aria-live="polite"
-      className={`fixed bottom-5 left-5 z-50 w-[calc(100%-2.5rem)] max-w-xs
+      className={`fixed bottom-5 left-5 z-50 w-[calc(100%-2.5rem)] max-w-xs cursor-pointer
         border border-black/15 bg-surface-container-low/95 backdrop-blur-md
         transition-all duration-500 ${
           visible
@@ -89,7 +91,7 @@ export default function LivePurchasePopup() {
             : "opacity-0 translate-y-4 pointer-events-none"
         }`}
     >
-      <div className="flex items-center gap-3 p-3">
+      <div className="flex items-start gap-3 p-3">
         <div className="relative h-12 w-12 shrink-0 overflow-hidden border border-black/15">
           {imageUrl ? (
             <Image
@@ -97,7 +99,7 @@ export default function LivePurchasePopup() {
               alt={product.name}
               fill
               sizes="48px"
-              className="object-cover grayscale"
+              className="object-cover"
             />
           ) : (
             <div className="w-full h-full bg-surface-container animate-pulse" />
@@ -114,7 +116,11 @@ export default function LivePurchasePopup() {
         </div>
         <button
           aria-label="Dismiss notification"
-          onClick={() => setDismissed(true)}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            setDismissed(true);
+          }}
           className="shrink-0 p-1.5 text-secondary hover:text-primary transition-colors cursor-pointer"
         >
           ✕
@@ -133,6 +139,6 @@ export default function LivePurchasePopup() {
           }}
         />
       </div>
-    </div>
+    </Link>
   );
 }

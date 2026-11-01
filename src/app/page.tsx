@@ -3,7 +3,6 @@ import type { Metadata } from "next";
 import Navbar from "@/components/layout/Navbar";
 import Hero from "@/components/sections/Hero";
 import MarqueeBar from "@/components/sections/MarqueeBar";
-import BentoGrid from "@/components/sections/BentoGrid";
 import CategoryGrid from "@/components/sections/CategoryGrid";
 import ProductGrid from "@/components/sections/ProductGrid";
 import LivePurchasePopup from "@/components/sections/LivePurchasePopup";
@@ -35,7 +34,6 @@ export default function Home() {
       <main className="max-w-[1600px] mx-auto pt-24 px-container-margin space-y-section-gap-lg">
         <Hero />
         <MarqueeBar />
-        <BentoGrid />
         <CategoryGrid />
         <ProductGrid />
         <HomepageReviewCarousel />

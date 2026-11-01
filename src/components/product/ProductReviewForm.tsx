@@ -115,7 +115,7 @@ export default function ProductReviewForm({ productId }: ProductReviewFormProps)
 
   if (!isSignedIn) {
     return (
-      <div className="border-t border-black/15 pt-12">
+      <div id="write-review" className="border-t border-black/15 pt-12">
         <h3 className="font-headline-md text-headline-md uppercase tracking-tighter text-primary mb-4">
           Write a Review
         </h3>
@@ -142,7 +142,7 @@ export default function ProductReviewForm({ productId }: ProductReviewFormProps)
   if (!canReview?.canReview) {
     if (canReview?.alreadyReviewed) {
       return (
-        <div className="border-t border-black/15 pt-12">
+        <div id="write-review" className="border-t border-black/15 pt-12">
           <div className="border border-primary/30 bg-primary/10 p-8 text-center space-y-4">
             <p className="font-headline-md text-primary">You&apos;ve already reviewed this product</p>
             <p className="font-label-sm text-secondary">Thank you for sharing your experience!</p>
@@ -152,12 +152,12 @@ export default function ProductReviewForm({ productId }: ProductReviewFormProps)
     }
 
     return (
-      <div className="border-t border-black/15 pt-12">
+      <div id="write-review" className="border-t border-black/15 pt-12">
         <h3 className="font-headline-md text-headline-md uppercase tracking-tighter text-primary mb-4">
           Write a Review
         </h3>
         <div className="border border-error/30 bg-error/10 p-8 text-center space-y-4">
-          <p className="font-headline-md text-error">Verified Purchase Required</p>
+          <p className="font-headline-md text-black">Purchase Required</p>
           <p className="font-label-sm text-secondary max-w-md mx-auto">
             {canReview?.reason ?? "Only verified buyers who have received this item can leave a review."}
           </p>
@@ -167,7 +167,7 @@ export default function ProductReviewForm({ productId }: ProductReviewFormProps)
   }
 
   return (
-    <div className="border-t border-black/15 pt-12 space-y-6">
+    <div id="write-review" className="scroll-mt-24 border-t border-black/15 pt-12 space-y-6">
       <h3 className="font-headline-md text-headline-md uppercase tracking-tighter text-primary">
         Write a Review
       </h3>

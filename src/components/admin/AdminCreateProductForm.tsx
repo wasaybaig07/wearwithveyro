@@ -41,6 +41,7 @@ export default function AdminCreateProductForm({
   const [name, setName] = useState("");
   const [price, setPrice] = useState("");
   const [priceValue, setPriceValue] = useState("");
+  const [discountPercent, setDiscountPercent] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("");
   const [stock, setStock] = useState("");
@@ -179,6 +180,7 @@ export default function AdminCreateProductForm({
         slug,
         price,
         priceValue: Number(priceValue),
+        discountPercent: discountPercent ? Number(discountPercent) : undefined,
         description,
         category,
         imageId: storageId,
@@ -239,6 +241,15 @@ export default function AdminCreateProductForm({
           <label className="font-label-bold text-[10px] uppercase tracking-[0.2em] text-secondary">Price (numeric) *</label>
           <input type="number" value={priceValue} onChange={(e) => setPriceValue(e.target.value)} placeholder="4800"
             className="w-full h-12 px-4 bg-background border border-black/15 text-primary font-label-bold text-sm tracking-wide placeholder:text-secondary/40 focus:outline-none focus:border-primary-fixed transition-colors" />
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <label className="font-label-bold text-[10px] uppercase tracking-[0.2em] text-secondary">Discount % (optional)</label>
+          <input type="number" min={0} max={90} value={discountPercent} onChange={(e) => setDiscountPercent(e.target.value)} placeholder="20 = 20% off"
+            className="w-full h-12 px-4 bg-background border border-black/15 text-primary font-label-bold text-sm tracking-wide placeholder:text-secondary/40 focus:outline-none focus:border-primary-fixed transition-colors" />
+          <p className="font-label-bold text-[9px] text-secondary/60 tracking-wider uppercase">
+            Sale price is auto-calculated on the product page
+          </p>
         </div>
 
         <div className="flex flex-col gap-2">
@@ -423,9 +434,12 @@ export default function AdminCreateProductForm({
 
         <div className="flex flex-col gap-2 md:col-span-2">
           <label className="font-label-bold text-[10px] uppercase tracking-[0.2em] text-secondary">Description *</label>
-          <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={3}
-            placeholder="Engineered for the digital nomad..."
-            className="w-full px-4 py-3 bg-background border border-black/15 text-primary font-label-bold text-sm tracking-wide placeholder:text-secondary/40 focus:outline-none focus:border-primary-fixed transition-colors resize-none" />
+          <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={8}
+            placeholder={"Engineered for the digital nomad.\n- 240gsm heavyweight cotton\n- Relaxed drop-shoulder fit"}
+            className="w-full px-4 py-3 bg-background border border-black/15 text-primary font-label-bold text-sm tracking-wide placeholder:text-secondary/40 focus:outline-none focus:border-primary-fixed transition-colors resize-y leading-relaxed" />
+          <p className="font-label-bold text-[10px] text-secondary/70 tracking-wider">
+            Press Enter to start a new line. Start a line with &quot;•&quot;, &quot;-&quot; or &quot;*&quot; (followed by a space) to render it as a bullet point on the product page.
+          </p>
         </div>
 
         {error && (

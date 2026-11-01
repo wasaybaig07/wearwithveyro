@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { computeSalePriceValue, formatRs, isDiscountActive } from "@/lib/pricing";
 
 interface SizeChartRow {
   size: string;
@@ -22,6 +23,8 @@ interface ColorVariantOption {
 interface ProductInfoProps {
   name?: string;
   price?: string;
+  priceValue?: number;
+  discountPercent?: number;
   description?: string;
   sizes?: string[];
   stock?: number;
@@ -46,9 +49,10 @@ const fallbackSizeChart: SizeChartData = {
 export default function ProductInfo({
   name = "VORTEX GRAIL TEE",
   price = "Rs. 4,800",
+  priceValue = 4800,
+  discountPercent,
   description = "Engineered for the digital nomad. The Vortex Grail Tee features a relaxed, drop-shoulder silhouette constructed from our custom-developed heavy-weight jersey.",
   sizes = ["S", "M", "L", "XL"],
-  stock,
   isSoldOut = false,
   isAdded,
   sizeChart,
@@ -86,41 +90,37 @@ export default function ProductInfo({
         {/* Title & Price */}
         <div className="w-full flex flex-col gap-4">
           <div className="flex justify-between items-start gap-4">
-            <h1 className="font-headline-lg text-headline-lg max-w-[70%] uppercase">
+            <h1 className="font-headline-lg max-w-[62%] md:max-w-[70%] uppercase leading-none tracking-tight text-[26px] md:text-[44px]">
               {name}
             </h1>
             <div className="flex flex-col items-end shrink-0">
-              <span className="font-headline-md text-headline-md text-primary-fixed">
-                {price}
-              </span>
-              <span className="font-label-sm text-label-sm text-secondary opacity-60">
-                TAX INCL.
-              </span>
+              {isDiscountActive(discountPercent) && typeof priceValue === "number" ? (
+                <>
+                  <span className="font-headline-md text-primary-fixed text-[18px] md:text-[26px]">
+                    {formatRs(computeSalePriceValue(priceValue, discountPercent))}
+                  </span>
+                  <span className="mt-1 flex items-center gap-2">
+                    <span className="font-label-bold text-[11px] md:text-[13px] text-secondary line-through">
+                      {price}
+                    </span>
+                    <span className="font-label-bold text-[9px] md:text-[10px] uppercase tracking-widest bg-primary-fixed text-on-primary-fixed px-1.5 py-0.5 select-none">
+                      -{discountPercent}%
+                    </span>
+                  </span>
+                </>
+              ) : (
+                <span className="font-headline-md text-primary-fixed text-[18px] md:text-[26px]">
+                  {price}
+                </span>
+              )}
             </div>
           </div>
-
-          {typeof stock === "number" && (
-            <div className="flex items-center gap-2">
-              <span
-                className={`w-2 h-2 rounded-full ${
-                  isSoldOut ? "bg-black/25" : stock <= 5 ? "bg-error animate-pulse" : "bg-emerald-500"
-                }`}
-              />
-              <span
-                className={`font-label-bold text-[11px] uppercase tracking-widest ${
-                  isSoldOut ? "text-error" : stock <= 5 ? "text-error" : "text-emerald-500"
-                }`}
-              >
-                {isSoldOut ? "Sold Out" : stock <= 5 ? `Low Stock: Only ${stock} left` : "In Stock"}
-              </span>
-            </div>
-          )}
         </div>
 
         {/* Color Selector */}
         {colorVariants.length > 0 && (
           <div className="w-full flex flex-col gap-3">
-            <label className="font-label-bold text-label-bold tracking-tighter uppercase">
+            <label className="font-label-bold text-[12px] md:text-[13px] tracking-tighter uppercase">
               Select Color
             </label>
             <div className="flex items-center gap-3">
@@ -152,22 +152,43 @@ export default function ProductInfo({
         )}
 
         {/* Description */}
-        <div className="w-full flex flex-col gap-4">
-          <p className="font-body-lg text-body-lg text-secondary leading-relaxed">
-            {description}
-          </p>
+        <div className="w-full flex flex-col gap-3">
+          {description
+            .split("\n")
+            .map((line) => line.trim())
+            .filter((line) => line.length > 0)
+            .map((line, i) =>
+              /^[•\-*]\s+/.test(line) ? (
+                <div key={i} className="flex items-start gap-2.5">
+                  <span
+                    aria-hidden
+                    className="mt-[0.55em] h-1.5 w-1.5 shrink-0 rounded-full bg-secondary"
+                  />
+                  <span className="min-w-0 break-words font-body-md text-secondary text-[14px] md:text-[16px] leading-relaxed">
+                    {line.replace(/^[•\-*]\s+/, "")}
+                  </span>
+                </div>
+              ) : (
+                <p
+                  key={i}
+                  className="break-words font-body-md text-secondary text-[14px] md:text-[16px] leading-relaxed"
+                >
+                  {line}
+                </p>
+              )
+            )}
         </div>
 
         {/* Size Selector */}
         <div className="w-full flex flex-col gap-6">
           <div className="flex justify-between items-center">
-            <label className="font-label-bold text-label-bold tracking-tighter uppercase">
+            <label className="font-label-bold text-[12px] md:text-[13px] tracking-tighter uppercase">
               Select Size
             </label>
             <button
               type="button"
               onClick={() => setShowSizeGuide(true)}
-              className="text-label-sm font-label-bold underline text-secondary hover:text-primary transition-colors cursor-pointer"
+              className="font-label-bold underline text-secondary hover:text-primary transition-colors cursor-pointer text-[11px] md:text-[12px]"
             >
               SIZE GUIDE
             </button>
@@ -182,7 +203,7 @@ export default function ProductInfo({
                   setSelectedSize(size);
                   setSizeError(false);
                 }}
-                className={`h-14 border flex items-center justify-center font-label-bold text-sm transition-all active:scale-95 cursor-pointer ${
+                className={`h-12 md:h-14 border flex items-center justify-center font-label-bold text-[13px] md:text-sm transition-all active:scale-95 cursor-pointer ${
                   size === selectedSize
                     ? "border-primary-fixed bg-primary-fixed text-on-primary-fixed"
                     : "border-black/15 text-secondary hover:border-primary"
@@ -205,14 +226,14 @@ export default function ProductInfo({
         {/* CTA Buttons */}
         <div className="w-full flex flex-col gap-4">
           {isSoldOut ? (
-            <div className="w-full h-16 flex items-center justify-center font-label-bold text-lg tracking-widest uppercase bg-black/5 text-secondary/50 border border-black/15 cursor-not-allowed select-none">
+            <div className="w-full h-14 md:h-16 flex items-center justify-center font-label-bold text-[15px] md:text-[18px] tracking-widest uppercase bg-black/5 text-secondary/50 border border-black/15 cursor-not-allowed select-none">
               SOLD OUT
             </div>
           ) : (
             <>
               <button
                 onClick={handleAddToCart}
-                className={`w-full h-16 font-label-bold text-lg tracking-widest uppercase transition-all active:scale-[0.98] cursor-pointer ${
+                className={`w-full h-14 md:h-16 font-label-bold text-[14px] md:text-[17px] tracking-widest uppercase transition-all active:scale-[0.98] cursor-pointer ${
                   isAdded
                     ? "bg-emerald-600 text-black"
                     : "bg-primary-fixed text-on-primary hover:bg-black hover:text-white hover:border border-black neon-glow"
@@ -221,7 +242,7 @@ export default function ProductInfo({
               </button>
               <button
                 onClick={handleCheckout}
-                className="w-full h-16 border border-black text-black font-label-bold text-lg tracking-widest uppercase hover:bg-black hover:text-white transition-all active:scale-[0.98] cursor-pointer"
+                className="w-full h-14 md:h-16 border border-black text-black font-label-bold text-[14px] md:text-[17px] tracking-widest uppercase hover:bg-black hover:text-white transition-all active:scale-[0.98] cursor-pointer"
               >
                 Express Checkout
               </button>
@@ -238,8 +259,8 @@ export default function ProductInfo({
             onClick={() => setShowSizeGuide(false)}
           />
           <div className="relative w-full max-w-md border border-black/15 bg-surface-container-low">
-            <div className="sticky top-0 px-6 py-4 border-b border-black/15 bg-surface-container-low flex justify-between items-center">
-              <h2 className="font-label-bold text-label-bold uppercase tracking-widest text-primary">
+            <div className="sticky top-0 px-4 sm:px-6 py-4 border-b border-black/15 bg-surface-container-low flex justify-between items-center">
+              <h2 className="font-label-bold text-[12px] md:text-[14px] uppercase tracking-widest text-primary">
                 Size Guide
               </h2>
               <button
@@ -250,8 +271,8 @@ export default function ProductInfo({
                 Close
               </button>
             </div>
-            <div className="p-6">
-              <p className="font-label-sm text-sm text-secondary mb-6 uppercase tracking-wider">
+            <div className="p-4 sm:p-6">
+              <p className="font-label-sm text-[10px] md:text-[12px] text-secondary mb-4 md:mb-6 uppercase tracking-wider">
                 Measurements in inches
               </p>
               <table className="w-full text-left border-collapse">
@@ -266,9 +287,9 @@ export default function ProductInfo({
                 <tbody>
                   {chart.rows.map((row) => (
                     <tr key={row.size} className="border-b border-black/10">
-                      <td className="py-3 pr-4 font-label-bold text-sm text-primary">{row.size}</td>
+                      <td className="py-3 pr-4 font-label-bold text-[12px] md:text-sm text-primary">{row.size}</td>
                       {chart.headers.map((h) => (
-                        <td key={h} className="py-3 pr-4 font-label-sm text-sm text-secondary">
+                        <td key={h} className="py-3 pr-4 font-label-sm text-[12px] md:text-sm text-secondary">
                           {row.measurements[h] || "—"}
                         </td>
                       ))}

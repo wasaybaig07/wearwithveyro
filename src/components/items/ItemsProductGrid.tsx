@@ -26,6 +26,8 @@ interface ConvexProduct {
   slug: string;
   name: string;
   price: string;
+  priceValue?: number;
+  discountPercent?: number;
   category: string;
   imageId?: string;
   imageSecondaryId?: string;

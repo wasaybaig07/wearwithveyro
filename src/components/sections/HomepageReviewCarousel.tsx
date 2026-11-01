@@ -1,123 +1,217 @@
 "use client";
 
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
-import { Star } from "lucide-react";
-import Image from "next/image";
+import { Star, ChevronLeft, ChevronRight, BadgeCheck, Quote } from "lucide-react";
+import Link from "next/link";
 import type { Id } from "../../../convex/_generated/dataModel";
 
-function formatDate(ts: number): string {
-  return new Date(ts).toLocaleDateString("en-PK", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  });
+const MAX_REVIEWS = 9;
+const MAX_REVIEWS_MOBILE = 8;
+// One wide card per slide, Surteez-style.
+const FETCH_LIMIT = 999;
+
+interface Review {
+  _id: string;
+  productId: Id<"products">;
+  userId: string;
+  userName?: string;
+  rating: number;
+  comment: string;
+  createdAt: number;
+  title?: string;
+  imageStorageId?: Id<"_storage">;
 }
 
-function StarRating({ rating }: { rating: number }) {
+function Stars({
+  rating,
+  className = "w-4 h-4",
+}: {
+  rating: number;
+  className?: string;
+}) {
   return (
     <div className="flex items-center gap-0.5" aria-label={`${rating} out of 5 stars`}>
       {[1, 2, 3, 4, 5].map((star) => (
-        <Star key={star} className={`w-5 h-5 ${star <= rating ? "fill-primary text-primary" : "text-black/15"}`} />
+        <Star
+          key={star}
+          className={`${className} ${star <= rating ? "fill-primary-fixed text-primary-fixed" : "text-black/15"}`}
+        />
       ))}
     </div>
   );
 }
 
-function getInitials(name: string): string {
-  return name
-    .split(" ")
-    .map((n) => n[0])
-    .join("")
-    .toUpperCase()
-    .slice(0, 2);
-}
-
-function ReviewImage({ storageId }: { storageId: Id<"_storage"> }) {
-  const imageUrl = useQuery(api.storage.getUrl, storageId ? { storageId } : "skip");
-
-  if (!imageUrl) return null;
-
+function ReviewCard({
+  review,
+  productName,
+  productSlug,
+}: {
+  review: Review;
+  productName?: string;
+  productSlug?: string;
+}) {
   return (
-    <div className="relative w-full aspect-square rounded-lg overflow-hidden border border-black/15">
-      <Image
-        src={imageUrl}
-        alt="Review image"
-        fill
-        sizes="(max-width: 768px) 100vw, 33vw"
-        className="object-cover"
-      />
-    </div>
+    <article className="w-full h-full flex flex-col items-center justify-center text-center gap-4 md:gap-5 border border-black/15 rounded-lg px-6 py-10 md:px-16 md:py-12 overflow-hidden hover:border-primary-fixed/40 transition-colors">
+      <Quote className="w-8 h-8 md:w-10 md:h-10 fill-primary-fixed text-primary-fixed shrink-0" />
+
+      <p className="font-label-bold text-[13px] md:text-sm text-primary line-clamp-2 max-w-2xl">
+        {review.title || review.comment}
+      </p>
+
+      <Stars rating={review.rating} className="w-4 h-4 md:w-5 md:h-5" />
+
+      <p className="flex items-center justify-center gap-1.5 font-label-bold text-[13px] md:text-sm text-primary">
+        <span className="truncate max-w-[180px]">{review.userName ?? "Verified Buyer"}</span>
+        <BadgeCheck className="w-4 h-4 md:w-5 md:h-5 text-primary-fixed shrink-0" aria-label="Verified purchase" />
+      </p>
+
+      {productSlug ? (
+        <Link
+          href={`/product/${productSlug}`}
+          className="font-label-bold text-[12px] md:text-sm text-secondary underline underline-offset-4 decoration-1 hover:text-primary-fixed transition-colors"
+        >
+          {productName ?? "View product"}
+        </Link>
+      ) : (
+        <Link
+          href="/items"
+          className="font-label-bold text-[12px] md:text-sm text-secondary underline underline-offset-4 decoration-1 hover:text-primary-fixed transition-colors"
+        >
+          View product
+        </Link>
+      )}
+    </article>
   );
 }
 
 export default function HomepageReviewCarousel() {
-  const reviews = useQuery(api.reviews.getRandomReviews, { limit: 6 });
+  const reviews = useQuery(api.reviews.getRandomReviews, { limit: FETCH_LIMIT });
+  const products = useQuery(api.products.listProducts);
+
+  const trackRef = useRef<HTMLDivElement | null>(null);
+  const [page, setPage] = useState(0);
+  const [isDesktop, setIsDesktop] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 1024px)");
+    const update = () => {
+      setIsDesktop(mq.matches);
+      setPage(0);
+    };
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
+
+  // Store-wide aggregate across everything fetched.
+  const total = useMemo(() => (reviews ?? []).length, [reviews]);
+
+  // Strictly 5-star reviews only, capped per breakpoint (9 desktop / 8 mobile).
+  const shown = useMemo(() => {
+    const fiveStarOnly = (reviews ?? []).filter((r) => r.rating === 5);
+    return fiveStarOnly.slice(0, isDesktop ? MAX_REVIEWS : MAX_REVIEWS_MOBILE);
+  }, [reviews, isDesktop]);
+
+  const productMap = useMemo(() => {
+    const map = new Map<string, { name: string; slug?: string }>();
+    for (const p of products ?? []) {
+      map.set(p._id, { name: p.name, slug: p.slug ?? undefined });
+    }
+    return map;
+  }, [products]);
+
+  const pages = Math.max(1, shown.length);
+
+  const scrollToPage = (target: number) => {
+    const el = trackRef.current;
+    if (!el) return;
+    const next = Math.min(pages - 1, Math.max(0, target));
+    el.scrollTo({ left: next * el.clientWidth, behavior: "smooth" });
+    setPage(next);
+  };
+
+  const handleScroll = () => {
+    const el = trackRef.current;
+    if (!el || el.clientWidth === 0) return;
+    setPage(Math.min(pages - 1, Math.max(0, Math.round(el.scrollLeft / el.clientWidth))));
+  };
 
   if (reviews === undefined) {
     return (
       <section className="border-t border-black/15 pt-12 md:pt-16" aria-labelledby="reviews-heading">
-        <div className="animate-pulse space-y-6">
-          <div className="flex items-center justify-between">
-            <div className="h-8 bg-surface-container w-48 rounded-none" />
+        <div className="animate-pulse space-y-8">
+          <div className="flex flex-col items-center gap-4">
+            <div className="h-8 bg-surface-container w-64 rounded-none" />
+            <div className="flex items-center gap-1.5 w-40">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <div key={i} className="w-4 h-4 bg-surface-container" />
+              ))}
+            </div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="border border-black/15 p-6 space-y-4">
-                <div className="h-5 bg-surface-container w-24 rounded-none" />
-                <div className="h-4 bg-surface-container w-full rounded-none" />
-                <div className="h-4 bg-surface-container w-3/4 rounded-none" />
-                <div className="h-4 bg-surface-container w-1/2 rounded-none" />
-              </div>
-            ))}
-          </div>
+          <div className="border border-black/15 rounded-lg h-[320px] md:h-[360px]" />
         </div>
       </section>
     );
   }
 
-  if (reviews.length === 0) {
+  if (total === 0 || shown.length === 0) {
     return null;
   }
 
   return (
     <section className="border-t mb-20 border-black/15 pt-12 md:pt-16" aria-labelledby="reviews-heading">
-      <div className="flex items-center justify-between border-b border-black/15 pb-4 mb-8">
-        <h2 id="reviews-heading" className="font-headline-lg text-headline-lg uppercase tracking-tighter text-primary select-none">
-          Customer Reviews
+      <div className="flex flex-col items-center text-center mb-8 md:mb-10">
+        <h2 id="reviews-heading" className="text-[24px] md:text-[32px] font-semibold tracking-tight leading-none text-primary select-none">
+          Customers are saying
         </h2>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-        {reviews.map((review: { _id: string; userId: string; userName?: string; rating: number; comment: string; createdAt: number; title?: string; imageStorageId?: Id<"_storage"> }) => (
-          <article
-            key={review._id}
-            className="border border-black/15 p-6 space-y-4 hover:border-primary-fixed/40 transition-colors"
-          >
-            <div className="flex items-start justify-between gap-4">
-              <div className="flex items-center gap-3 flex-1 min-w-0">
-                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                  <span className="font-label-bold text-primary text-sm">
-                    {review.userName ? getInitials(review.userName) : review.userId.slice(0, 2).toUpperCase()}
-                  </span>
-                </div>
-                <div className="min-w-0">
-                  <p className="font-label-bold text-sm text-primary truncate">{review.userName ?? "Verified Buyer"}</p>
-                  <p className="font-label-sm text-[11px] text-secondary">{formatDate(review.createdAt)}</p>
-                </div>
-              </div>
-              <StarRating rating={review.rating} />
+      <div
+        ref={trackRef}
+        onScroll={handleScroll}
+        className="flex overflow-x-auto snap-x snap-mandatory scroll-smooth hide-scrollbar"
+      >
+        {shown.map((review) => {
+          const product = productMap.get(review.productId);
+          return (
+            <div
+              key={review._id}
+              className="w-full shrink-0 snap-center flex"
+            >
+              <ReviewCard
+                review={review}
+                productName={product?.name}
+                productSlug={product?.slug}
+              />
             </div>
-            {review.title && (
-              <h4 className="font-label-bold text-sm text-primary line-clamp-1">{review.title}</h4>
-            )}
-            {review.imageStorageId && (
-              <ReviewImage storageId={review.imageStorageId} />
-            )}
-            <p className="font-body-md text-body-md text-secondary leading-relaxed line-clamp-4">{review.comment}</p>
-          </article>
-        ))}
+          );
+        })}
       </div>
+
+      {shown.length > 1 && (
+        <div className="flex items-center justify-center gap-3 mt-6">
+          <button
+            type="button"
+            aria-label="Previous review"
+            onClick={() => scrollToPage(page - 1)}
+            disabled={page === 0}
+            className="w-11 h-11 flex items-center justify-center border border-black/15 bg-surface-container-lowest text-primary hover:border-primary-fixed hover:text-primary-fixed transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
+          >
+            <ChevronLeft className="w-5 h-5" strokeWidth={2} />
+          </button>
+          <button
+            type="button"
+            aria-label="Next review"
+            onClick={() => scrollToPage(page + 1)}
+            disabled={page >= pages - 1}
+            className="w-11 h-11 flex items-center justify-center border border-black/15 bg-surface-container-lowest text-primary hover:border-primary-fixed hover:text-primary-fixed transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
+          >
+            <ChevronRight className="w-5 h-5" strokeWidth={2} />
+          </button>
+        </div>
+      )}
     </section>
   );
 }

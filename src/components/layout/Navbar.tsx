@@ -10,7 +10,7 @@ import { useCartStore } from "@/store/useCartStore";
 import { useSearchStore } from "@/store/useSearchStore";
 
 const navLinks = [
-  { label: "NEW DROPS", href: "/" },
+  { label: "HOME", href: "/" },
   { label: "SHIRTS", href: "/shop" },
 ];
 
@@ -162,7 +162,7 @@ export default function Navbar() {
           <div className="fixed inset-0 z-[100] h-screen w-screen bg-black flex flex-col px-container-margin pt-24 pb-12">
             <button
               onClick={close}
-              className="absolute top-5 right-5 text-primary hover:text-primary-fixed transition-colors cursor-pointer"
+              className="absolute top-5 right-5 text-white hover:text-primary-fixed transition-colors cursor-pointer"
               aria-label="Close menu"
             >
               <X size={28} />
@@ -178,7 +178,7 @@ export default function Navbar() {
                     className={`font-label-bold text-2xl tracking-widest transition-all ${
                       isActive
                         ? "text-primary-fixed hover:line-through"
-                        : "text-primary hover:text-primary-fixed hover:line-through"
+                        : "text-white hover:text-primary-fixed hover:line-through"
                     }`}
                     href={link.href}
                     onClick={close}

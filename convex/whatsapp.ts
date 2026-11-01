@@ -1,7 +1,7 @@
 import { action } from "./_generated/server";
 import { v } from "convex/values";
 
-const ADMIN_PHONE = "92318217144";
+const ADMIN_PHONE = "923186590081";
 
 export const sendNewOrderAlert = action({
   args: {

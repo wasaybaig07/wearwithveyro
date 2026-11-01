@@ -6,6 +6,11 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme {
+  --font-sans: var(--font-zilla-slab), sans-serif;
+  --font-serif: var(--font-zilla-slab), serif;
+}
+
+@theme {
   --color-inverse-surface: #1c1b1b;
   --color-surface-container: #e8e5e4;
   --color-primary-fixed: #90a1b9;
@@ -264,4 +269,12 @@ input:focus {
     @apply font-sans;
     font-size: 125%;
   }
+  body, p, span, a, h1, h2, h3, h4, h5, h6, input, button, textarea {
+  font-family: var(--font-cabin), sans-serif !important;
 }
+  /* Subtle border radius for every interactive button platform-wide */
+  button {
+    border-radius: 4px;
+  }
+}
+

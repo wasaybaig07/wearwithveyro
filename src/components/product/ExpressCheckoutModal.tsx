@@ -104,14 +104,14 @@ export default function ExpressCheckoutModal({
   );
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center sm:p-4">
       <div
         className="absolute inset-0 bg-background/80 backdrop-blur-sm"
         onClick={onClose}
       />
-      <div className="relative w-full max-w-lg border border-black/15 bg-surface-container-low max-h-[90vh] overflow-y-auto">
-        <div className="sticky top-0 z-10 px-6 py-4 border-b border-black/15 bg-surface-container-low flex justify-between items-center">
-          <h2 className="font-label-bold text-label-bold uppercase tracking-widest text-primary">
+      <div className="relative w-full sm:max-w-lg border border-black/15 bg-surface-container-low max-h-[92dvh] sm:max-h-[90vh] overflow-y-auto overscroll-contain">
+        <div className="sticky top-0 z-10 px-4 sm:px-6 py-4 border-b border-black/15 bg-surface-container-low flex justify-between items-center">
+          <h2 className="font-label-bold text-[12px] md:text-[14px] uppercase tracking-widest text-primary">
             Express Checkout
           </h2>
           <button
@@ -123,7 +123,7 @@ export default function ExpressCheckoutModal({
           </button>
         </div>
 
-        <div className="p-6 space-y-6">
+        <div className="p-4 sm:p-6 space-y-6">
           <div className="border border-black/15 bg-surface-container p-4 flex justify-between items-center">
             <div className="min-w-0">
               <h3 className="font-label-bold text-sm text-primary uppercase tracking-wide truncate">
@@ -268,7 +268,7 @@ export default function ExpressCheckoutModal({
           </div>
 
           {error && (
-            <div role="alert" className="p-4 border border-error/30 bg-error/10 text-red-600 font-label-bold text-sm">
+            <div role="alert" className="p-4 border border-error/30 bg-error/10 text-red-600 font-label-bold text-[13px] md:text-sm">
               {error}
             </div>
           )}
@@ -278,7 +278,7 @@ export default function ExpressCheckoutModal({
               type="button"
               onClick={() => processOrder("cod")}
               disabled={submitting}
-              className="w-full h-14 bg-primary-fixed text-on-primary-fixed font-label-bold text-lg tracking-widest uppercase hover:bg-black hover:text-white border border-transparent hover:border-black transition-all active:scale-[0.98] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full h-14 bg-primary-fixed text-on-primary-fixed font-label-bold text-[14px] md:text-[17px] tracking-widest uppercase hover:bg-black hover:text-white border border-transparent hover:border-black transition-all active:scale-[0.98] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {submitting ? "Placing Order..." : "Cash on Delivery Checkout"}
             </button>
@@ -286,7 +286,7 @@ export default function ExpressCheckoutModal({
               type="button"
               onClick={() => processOrder("whatsapp")}
               disabled={submitting}
-              className="w-full h-14 border border-black text-black font-label-bold text-lg tracking-widest uppercase hover:bg-black hover:text-white transition-all active:scale-[0.98] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full h-14 border border-black text-black font-label-bold text-[13px] md:text-[16px] tracking-widest uppercase hover:bg-black hover:text-white transition-all active:scale-[0.98] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Pay via Online & Continue on WhatsApp
             </button>

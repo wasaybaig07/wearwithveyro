@@ -6,6 +6,7 @@ import { api } from "../../../convex/_generated/api";
 import { buildStorageUrlQueries } from "@/lib/storageQueries";
 import Image from "next/image";
 import Link from "next/link";
+import { computeSalePriceValue, formatRs, isDiscountActive } from "@/lib/pricing";
 
 interface ItemsProductCardProps {
   product: {
@@ -13,6 +14,8 @@ interface ItemsProductCardProps {
     slug: string;
     name: string;
     price: string;
+    priceValue?: number;
+    discountPercent?: number;
     category: string;
     imageId?: string;
     imageSecondaryId?: string;
@@ -31,7 +34,7 @@ interface ItemsProductCardProps {
 }
 
 export default function ItemsProductCard({ product }: ItemsProductCardProps) {
-  const { slug, name, price, category, imageId, imageSecondaryId, sizes, stock, status, badge, inventoryPercent } = product;
+  const { slug, name, price, priceValue, discountPercent, category, imageId, imageSecondaryId, sizes, stock, status, badge, inventoryPercent } = product;
 
   const mainUrl = useQuery(
     api.storage.getUrl,
@@ -100,7 +103,7 @@ export default function ItemsProductCard({ product }: ItemsProductCardProps) {
             alt={name}
             fill
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 50vw, 20vw"
-            className={`absolute inset-0 w-full h-full object-cover grayscale brightness-75 transition-opacity duration-500 ${imageSecondary && !isSoldOut ? "group-hover:opacity-0" : ""} ${isSoldOut ? "brightness-50" : ""}`}
+            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${imageSecondary && !isSoldOut ? "group-hover:opacity-0" : ""}`}
           />
         ) : (
           <div className="w-full h-full bg-surface-container animate-pulse" />
@@ -112,13 +115,13 @@ export default function ItemsProductCard({ product }: ItemsProductCardProps) {
             alt={`${name} detail`}
             fill
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 50vw, 20vw"
-            className="absolute inset-0 w-full h-full object-cover grayscale brightness-90 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+            className="absolute inset-0 w-full h-full object-cover opacity-0 group-hover:opacity-100 transition-opacity duration-500"
           />
         )}
 
         {isSoldOut && (
           <div className="absolute inset-0 flex items-center justify-center">
-            <span className="font-headline-md text-headline-md -rotate-12 border-2 border-black/40 px-4 py-1 uppercase opacity-40 select-none">
+            <span className="font-headline-md -rotate-12 border-2 border-black/40 bg-surface-container-lowest/90 text-primary px-4 py-1 uppercase opacity-70 select-none">
               Sold Out
             </span>
           </div>
@@ -145,7 +148,7 @@ export default function ItemsProductCard({ product }: ItemsProductCardProps) {
               {sizes.map((size) => (
                 <button
                   key={size}
-                  className="flex-1 py-1 md:py-1.5 text-[9px] md:text-[10px] font-label-bold border border-black/30 hover:border-primary-fixed hover:text-primary-fixed transition-colors cursor-pointer tracking-wider"
+                  className="flex-1 py-1 md:py-1.5 text-[9px] md:text-[10px] border border-primary-fixed/40 text-primary-fixed hover:border-primary-fixed hover:bg-primary-fixed/10 transition-colors cursor-pointer tracking-wider"
                 >
                   {size}
                 </button>
@@ -157,12 +160,27 @@ export default function ItemsProductCard({ product }: ItemsProductCardProps) {
 
       <div className="p-3 md:p-6 flex flex-col flex-grow bg-surface-container-lowest">
         <div className="flex justify-between items-start mb-1.5 md:mb-2 gap-2">
-          <h3 className={`font-label-bold text-[11px] md:text-sm uppercase tracking-tight ${isSoldOut ? "line-through decoration-primary-fixed" : "text-primary"}`}>
+          <h3 className={`font-label-bold text-[11px] md:text-sm uppercase tracking-tight min-w-0 break-words ${isSoldOut ? "line-through decoration-primary-fixed" : "text-primary"}`}>
             {name}
           </h3>
-          <span className={`font-label-bold text-[11px] md:text-sm shrink-0 ${isSoldOut ? "text-secondary" : "text-primary-fixed"}`}>
-            {price}
-          </span>
+          {isSoldOut ? (
+            <span className="font-label-bold text-[11px] md:text-sm shrink-0 text-secondary">
+              {price}
+            </span>
+          ) : isDiscountActive(discountPercent) && typeof priceValue === "number" ? (
+            <span className="shrink-0 flex flex-col items-end leading-none">
+              <span className="font-label-bold text-[11px] md:text-sm text-primary-fixed">
+                {formatRs(computeSalePriceValue(priceValue, discountPercent))}
+              </span>
+              <span className="mt-1 font-label-bold text-[9px] md:text-[10px] text-secondary line-through">
+                {price}
+              </span>
+            </span>
+          ) : (
+            <span className="font-label-bold text-[11px] md:text-sm shrink-0 text-primary-fixed">
+              {price}
+            </span>
+          )}
         </div>
         <p className="text-secondary font-label-sm text-[9px] md:text-[11px] uppercase mb-3 md:mb-4 opacity-60 tracking-wider">
           ARCHIVE / {category}

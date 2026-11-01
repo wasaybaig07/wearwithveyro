@@ -1,4 +1,4 @@
-export const WHATSAPP_PHONE = "923180217144";
+export const WHATSAPP_PHONE = "923186590081";
 
 export interface ShippingInfo {
   name: string;

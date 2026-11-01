@@ -17,7 +17,7 @@ META_VERIFY_TOKEN = os.environ.get("META_VERIFY_TOKEN", "")
 META_APP_SECRET = os.environ.get("META_APP_SECRET", "")
 WHATSAPP_API_KEY = os.environ.get("WHATSAPP_API_KEY", "")
 WHATSAPP_PHONE_NUMBER_ID = os.environ.get("WHATSAPP_PHONE_NUMBER_ID", "")
-ADMIN_PHONE = os.environ.get("ADMIN_PHONE", "92318217144")
+ADMIN_PHONE = os.environ.get("ADMIN_PHONE", "923186590081")
 
 TEMPLATE_NAME = os.environ.get("WHATSAPP_TEMPLATE_NAME", "order_confirmation")
 

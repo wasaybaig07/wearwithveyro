@@ -48,20 +48,7 @@ export default function Hero() {
 
       {heroCards.length > 0 && (
         <>
-          {/* Mobile: max 2 cards */}
-          <div className="md:hidden pointer-events-none absolute inset-x-0 z-10 bottom-6 flex items-center justify-center px-container-margin">
-            {heroCards.slice(0, 2).map((card, i) => (
-              <HeroCard
-                key={card._id}
-                slug={card.slug}
-                name={card.name}
-                price={card.price}
-                imageId={card.imageId}
-                index={i}
-                total={heroCards.slice(0, 2).length}
-              />
-            ))}
-          </div>
+          {/* Mobile: hidden — cards only shown on md+ */}
 
           {/* Desktop: unchanged */}
           <div className="hidden md:flex pointer-events-none absolute inset-x-0 lg:inset-x-auto lg:right-10 z-10 bottom-6 md:bottom-10 flex items-end justify-center lg:justify-end px-container-margin lg:px-0">

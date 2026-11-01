@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
-import ProductCard from "@/components/product/ProductCard";
+import ItemsProductCard from "@/components/items/ItemsProductCard";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function ProductGrid() {
@@ -16,10 +16,10 @@ export default function ProductGrid() {
     <section className="pb-16 md:pb-20">
       <div className="flex justify-between items-end border-b border-black/15 pb-4">
         <h2 className="font-headline-lg text-headline-lg text-primary uppercase select-none">
-          MEN&apos;S SHIRTS & STREETWEAR DROPS
+          OUR COLLECTION
         </h2>
         <Link
-          className="font-label-bold text-label-bold text-secondary hover:text-primary transition-all hover:line-through tracking-widest"
+          className="font-label-bold text-label-bold text-secondary hover:text-primary transition-all hover:line-through tracking-widest text-[15px]"
           href="/shop"
         >
           VIEW ALL
@@ -47,18 +47,30 @@ export default function ProductGrid() {
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-0 border-l border-t border-black/15">
           {activeProducts.map((product) => (
-            <ProductCard
+            <ItemsProductCard
               key={product._id}
-              slug={product.slug}
-              name={product.name}
-              price={product.price}
-              description={product.description}
-              imageId={product.imageId}
-              imageSecondaryId={product.imageSecondaryId}
-              status={product.status}
-              stock={product.stock}
-              badge={product.badge}
-              colorVariants={product.colorVariants}
+              product={{
+                _id: product._id,
+                slug: product.slug,
+                name: product.name,
+                price: product.price,
+                priceValue: product.priceValue,
+                discountPercent: product.discountPercent,
+                category: product.category,
+                imageId: product.imageId,
+                imageSecondaryId: product.imageSecondaryId,
+                sizes: product.sizes,
+                stock: product.stock,
+                status: product.status,
+                badge: product.badge,
+                inventoryPercent: product.inventoryPercent,
+                colorVariants: product.colorVariants?.map((v) => ({
+                  name: v.name,
+                  hex: v.hex,
+                  imageId: v.imageId,
+                  imageSecondaryId: v.imageSecondaryId,
+                })),
+              }}
             />
           ))}
         </div>
